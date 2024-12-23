@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        canvas {
+            margin: 20px auto;
+            display: block;
+            max-width: 800px;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Student Dashboard</h1>
+    <canvas id="admissionsChart"></canvas>
+    <table id="performanceTable">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Test Term</th>
+                <th>Average</th>
+                <th>Grade</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        // Fetch and render admission statistics
+        fetch('/admission-stats')
+            .then(response => response.json())
+            .then(data => {
+                const years = data.map(item => item.Year);
+                const counts = data.map(item => item.Count);
+
+                const ctx = document.getElementById('admissionsChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: years,
+                        datasets: [{
+                            label: 'Admissions per Year',
+                            data: counts,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        }
+                    }
+                });
+            });
+
+        // Fetch and render student performance
+        fetch('/student-performance')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#performanceTable tbody');
+                data.forEach(row => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${row.StudentName}</td>
+                        <td>${row.TestTerm}</td>
+                        <td>${row.Average}</td>
+                        <td>${row.Grade}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            });
+    </script>
+</body>
+</html>
